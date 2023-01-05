@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NetCore6.MVC.Models;
 using System.DrawingCore;
+using ZXing.Common;
+using ZXing;
 using ZXing.ZKWeb;
+using System.Reflection.PortableExecutable;
 
 namespace NetCore6.MVC.Controllers
 {
@@ -16,13 +19,28 @@ namespace NetCore6.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Reader(IFormFile file)
         {
+            ImageInfo path = new ImageInfo();
             try
             {
-                if (file!=null)
+                if (file != null)
                 {
-                    var path = await ImageUploadAsync(file);
-                    var barcodeReader = new BarcodeReader();
+                    path = await ImageUploadAsync(file);
+                    var barcodeReader = new BarcodeReader()
+                    {
+                        AutoRotate = true,
+                        TryInverted = true,
+                        Options =
+                        {
+                            PossibleFormats = new List<BarcodeFormat> { BarcodeFormat.CODE_128 },
+                            TryHarder = true,
+                            ReturnCodabarStartEnd = true,
+                            PureBarcode = false
+                        }
+
+                    };
+
                     var barcodeBitmap = (Bitmap)Bitmap.FromFile(path.FullPath);
+                    ViewBag.ImageSize = barcodeBitmap.Size.ToString();
                     var barcodeResult = barcodeReader.Decode(barcodeBitmap);
                     ViewBag.Barcode = barcodeResult.Text.ToString();
                     ViewBag.BarcodeUrl = path.FileName;
@@ -36,7 +54,8 @@ namespace NetCore6.MVC.Controllers
             catch (Exception)
             {
                 ViewBag.Barcode = "Barkod Okunamadı!";
-                ViewBag.BarcodeUrl = "";
+                ViewBag.BarcodeUrl = path.FileName;
+                //ViewBag.ImageSize=path.s
             }
             return View();
         }
@@ -44,7 +63,7 @@ namespace NetCore6.MVC.Controllers
         {
             #region ImageUpload
             string path = "";
-            string newFileName = DateTime.Now.ToString("yyyy_MM_dd_HHmmssfff") + "-"+file.FileName;
+            string newFileName = DateTime.Now.ToString("yyyy_MM_dd_HHmmssfff") + "-" + file.FileName;
             try
             {
                 if (file.Length > 0)

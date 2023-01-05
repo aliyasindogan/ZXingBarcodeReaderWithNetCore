@@ -7,13 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GenCode128Core" Version="2.0.0-beta13" />
     <PackageReference Include="ZXing.Net" Version="0.16.8" />
     <PackageReference Include="ZXing.Net.Bindings.Windows.Compatibility" Version="0.16.10" />
     <PackageReference Include="ZXing.Net.Bindings.ZKWeb.System.Drawing" Version="0.16.6" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\Upload\" />
   </ItemGroup>
 
 </Project>
